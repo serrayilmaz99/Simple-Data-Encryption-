@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+	cout << "*** Welcome to the Simple Data Encryption Application *** " << endl;
+	string key;
+	cout << "Please enter the encryption key: ";
+	getline(cin,key);
+	string plaintext;
+	string keytemp = key;
+	cout << "Please enter the plaintext to be encrypted: ";
+
+	while (getline(cin,plaintext)) // get new input until ^Z
+	{
+		key = keytemp; // to continue with original key in each iteration
+
+		if (plaintext.length() > keytemp.length()) // if we're going to need to duplicate the key, also to avoid range issues
+		{
+			for (int i = 0; i< plaintext.length()-keytemp.length(); i++) // to equalize the lengths
+			{
+				key += key[i%keytemp.length()]; // enlarging key, assigning its copy to itself
+			}
+		}
+
+		unsigned char x,y,z,t;
+		x = 0x11; // 0001 0001, both will be shifted 2 units to left
+		y = 0x22; // 0010 0010, both will be shifted 1 unit to right
+		z = 0x44; // 0100 0100, both will be shifted 1 units to left
+		t = 0x88; // 1000 1000, both will be shifted 2 units to right
+		cout << "Ciphertext: ";
+
+		for (int i = 0; i< plaintext.length(); i++)
+		{
+			unsigned char temp = 0x0; // 0000 0000
+			unsigned char ch = plaintext[i];
+			temp = ((ch & x) << 2) | ((ch & y) >> 1) | ((ch & z) << 1) | ((ch & t) >> 2);
+			// for x-> with & operation, we copy ch's 0th and 4th bits and shifted it 2 units to left, since
+			// temp is 0000 0000 we equalize temp with what we copied before and combining all bits at the end
+			// for y,z,t also the same
+
+			unsigned char ciphertext = 0x0; // this is result
+			ciphertext = ciphertext | (temp ^ key[i]); // XOR operation with key
+			cout << hex << (int) ciphertext; 
+		}
+		cout << endl << endl;
+		cout << "Please enter the plaintext to be encrypted: ";
+	}
+
+	return 0;
+}
